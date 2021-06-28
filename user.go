@@ -1,4 +1,4 @@
-package main
+package rrs
 
 import "time"
 
@@ -9,4 +9,10 @@ type User struct {
 	Email     string    `gorm:"unique" json:"email"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type UserService interface {
+	Create(user *User) (*User, error)
+	GetById(id uint) (*User, error)
+	GetAll() []User
 }
