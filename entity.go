@@ -9,3 +9,9 @@ type Entity struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
+
+type EntityService interface {
+	Create(entity *Entity) (*Entity, error)
+	GetById(id uint) (*Entity, error)
+	GetAll() []Entity
+}
