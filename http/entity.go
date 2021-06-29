@@ -21,7 +21,7 @@ func (eh *EntityHandler) Create(w http.ResponseWriter, req *http.Request) {
 
 	type CreateReq struct {
 		Name      string `validate:"required,min=1,max=100" json:"name"`
-		CreatorId uint   `validate:"required,gte=0" json:"creatorId"`
+		CreatorId uint   `validate:"gte=0" json:"creatorId"`
 	}
 
 	var createReq CreateReq

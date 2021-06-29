@@ -23,4 +23,5 @@ func GetDB() *gorm.DB {
 func AutoMigrateAll() {
 	db.AutoMigrate(&rrs.User{})
 	db.AutoMigrate(&rrs.Entity{})
+	db.AutoMigrate(&rrs.Review{})
 }

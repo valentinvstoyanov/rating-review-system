@@ -11,3 +11,9 @@ type Review struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
+
+type ReviewService interface {
+	Create(review *Review) (*Review, error)
+	GetById(id uint) (*Review, error)
+	GetAll() []Review
+}
