@@ -12,7 +12,11 @@ type UserHandler struct {
 	userService rrs.UserService
 }
 
-func (uh UserHandler) Create(w http.ResponseWriter, req *http.Request) {
+func NewUserHandler(userService rrs.UserService) *UserHandler {
+	return &UserHandler{userService}
+}
+
+func (uh *UserHandler) Create(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-type", "application/json")
 
 	type CreateReq struct {
@@ -51,7 +55,7 @@ func (uh UserHandler) Create(w http.ResponseWriter, req *http.Request) {
 	_ = json.NewEncoder(w).Encode(user)
 }
 
-func (uh UserHandler) GetById(w http.ResponseWriter, req *http.Request) {
+func (uh *UserHandler) GetById(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-type", "application/json")
 
 	id, ok := extractParamId("id", w, req)
@@ -69,7 +73,7 @@ func (uh UserHandler) GetById(w http.ResponseWriter, req *http.Request) {
 	_ = json.NewEncoder(w).Encode(user)
 }
 
-func (uh UserHandler) GetAll(w http.ResponseWriter, _ *http.Request) {
+func (uh *UserHandler) GetAll(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Add("Content-type", "application/json")
 
 	users := uh.userService.GetAll()

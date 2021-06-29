@@ -9,6 +9,10 @@ type PersistentUserService struct {
 	db *gorm.DB
 }
 
+func NewUserService(db *gorm.DB) *PersistentUserService {
+	return &PersistentUserService{db}
+}
+
 func (us *PersistentUserService) Create(user *rrs.User) (*rrs.User, error) {
 	if err := us.db.Create(&user).Error; err != nil {
 		return nil, err
