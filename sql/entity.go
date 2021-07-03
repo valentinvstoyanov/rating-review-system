@@ -17,7 +17,7 @@ func NewEntityService(db *gorm.DB, userService rrs.UserService) *PersistentEntit
 
 func (es *PersistentEntityService) Create(entity *rrs.Entity) (*rrs.Entity, error) {
 	if _, err := es.userService.GetById(entity.CreatorId); err != nil {
-		return nil, errors.New("Failed to find creator with such id: " + err.Error())
+		return nil, errors.New("failed to find creator with such id: " + err.Error())
 	}
 
 	if err := es.db.Create(&entity).Error; err != nil {
@@ -38,4 +38,18 @@ func (es *PersistentEntityService) GetAll() []rrs.Entity {
 	var entities []rrs.Entity
 	es.db.Find(&entities)
 	return entities
+}
+
+func (es *PersistentEntityService) UpdateRating(id uint, avgRating float32, reviewsCount uint) (float32, error) {
+	res := db.Model(&rrs.Entity{}).Where("id = ?", id).UpdateColumns(rrs.Entity{AvgRating: avgRating, ReviewsCount: reviewsCount})
+
+	if err := res.Error; err != nil {
+		return 0, err
+	}
+
+	if res.RowsAffected != 1 {
+		return 0, errors.New("failed to update the rate")
+	}
+
+	return avgRating, nil
 }

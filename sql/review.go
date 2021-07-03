@@ -18,16 +18,29 @@ func NewReviewService(db *gorm.DB, userService rrs.UserService, entityService rr
 
 func (rs *PersistentReviewService) Create(review *rrs.Review) (*rrs.Review, error) {
 	if _, err := rs.userService.GetById(review.CreatorId); err != nil {
-		return nil, errors.New("Failed to find creator with such id: " + err.Error())
+		return nil, errors.New("failed to find creator with such id: " + err.Error())
 	}
 
-	if _, err := rs.entityService.GetById(review.EntityId); err != nil {
-		return nil, errors.New("Failed to find entity with such id: " + err.Error())
+	entity, err := rs.entityService.GetById(review.EntityId)
+	if err != nil {
+		return nil, errors.New("failed to find entity with such id: " + err.Error())
+	}
+
+	if entity.CreatorId == review.CreatorId {
+		return nil, errors.New("cannot rate your own entity")
 	}
 
 	if err := rs.db.Create(&review).Error; err != nil {
 		return nil, err
 	}
+
+	newReviewsCount := entity.ReviewsCount + 1
+	newAvgRating := (review.Rating + (entity.AvgRating * float32(entity.ReviewsCount))) / float32(newReviewsCount)
+	_, err = rs.entityService.UpdateRating(entity.Id, newAvgRating, newReviewsCount)
+	if err != nil {
+		return nil, errors.New("failed to rate the entity: " + err.Error())
+	}
+
 	return review, nil
 }
 
