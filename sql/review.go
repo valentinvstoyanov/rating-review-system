@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/jinzhu/gorm"
 	rrs "github.com/valentinvstoyanov/rating-review-system"
+	"time"
 )
 
 type PersistentReviewService struct {
@@ -41,7 +42,7 @@ func (rs *PersistentReviewService) Create(review *rrs.Review) (*rrs.Review, erro
 		return nil, errors.New("failed to rate the entity: " + err.Error())
 	}
 
-	//TODO: Notify entity.CreatorId that there is new review
+	//TODO: Notify entity.CreatorId that there is a new review
 
 	return review, nil
 }
@@ -69,5 +70,11 @@ func (rs *PersistentReviewService) GetByEntityId(entityId uint) []rrs.Review {
 func (rs *PersistentReviewService) GetByCreatorId(creatorId uint) []rrs.Review {
 	var reviews []rrs.Review
 	rs.db.Where(&rrs.Review{CreatorId: creatorId}).Find(&reviews)
+	return reviews
+}
+
+func (rs *PersistentReviewService) GetByEntityIdInPeriod(entityId uint, startTime time.Time, endTime time.Time) []rrs.Review {
+	var reviews []rrs.Review
+	rs.db.Where("entity_id = ? AND created_at >= ? AND created_at <= ?", entityId, startTime, endTime).Order("id").Find(&reviews)
 	return reviews
 }

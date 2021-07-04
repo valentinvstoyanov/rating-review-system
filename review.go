@@ -18,4 +18,5 @@ type ReviewService interface {
 	GetAll() []Review
 	GetByEntityId(entityId uint) []Review
 	GetByCreatorId(creatorId uint) []Review
+	GetByEntityIdInPeriod(entityId uint, startTime time.Time, endTime time.Time) []Review
 }

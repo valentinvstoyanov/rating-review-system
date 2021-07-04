@@ -17,16 +17,15 @@ func main() {
 	r := mux.NewRouter()
 
 	userService := sql.NewUserService(sql.GetDB())
-	userHandler := handlers.NewUserHandler(userService)
-
 	entityService := sql.NewEntityService(sql.GetDB(), userService)
-	entityHandler := handlers.NewEntityHandler(entityService)
-
-	reviewService := sql.NewReviewService(sql.GetDB(), userService, entityService)
-	reviewHandler := handlers.NewReviewHandler(reviewService)
-
 	ratingAlertService := sql.NewRatingAlertService(sql.GetDB(), entityService)
+	reviewService := sql.NewReviewService(sql.GetDB(), userService, entityService)
+	ratingAlertTriggerService := sql.NewRatingAlertTriggerService(entityService, reviewService, ratingAlertService)
+
+	userHandler := handlers.NewUserHandler(userService)
+	entityHandler := handlers.NewEntityHandler(entityService)
 	ratingAlertHandler := handlers.NewRatingAlertHandler(ratingAlertService)
+	reviewHandler := handlers.NewReviewHandler(reviewService, ratingAlertService, ratingAlertTriggerService)
 
 	registerApiRoutes(r.PathPrefix("/api").Subrouter(), userHandler, entityHandler, reviewHandler, ratingAlertHandler)
 

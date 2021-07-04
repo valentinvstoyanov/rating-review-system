@@ -6,14 +6,17 @@ import (
 	rrs "github.com/valentinvstoyanov/rating-review-system"
 	"log"
 	"net/http"
+	"time"
 )
 
 type ReviewHandler struct {
-	reviewService rrs.ReviewService
+	reviewService             rrs.ReviewService
+	ratingAlertService        rrs.RatingAlertService
+	ratingAlertTriggerService rrs.RatingAlertTriggerService
 }
 
-func NewReviewHandler(reviewService rrs.ReviewService) *ReviewHandler {
-	return &ReviewHandler{reviewService}
+func NewReviewHandler(reviewService rrs.ReviewService, ratingAlertService rrs.RatingAlertService, ratingAlertTriggerService rrs.RatingAlertTriggerService) *ReviewHandler {
+	return &ReviewHandler{reviewService, ratingAlertService, ratingAlertTriggerService}
 }
 
 func (rh *ReviewHandler) Create(w http.ResponseWriter, req *http.Request) {
@@ -55,6 +58,17 @@ func (rh *ReviewHandler) Create(w http.ResponseWriter, req *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(review)
+
+	ratingAlert, err := rh.ratingAlertService.GetByEntityId(review.EntityId)
+	if err != nil {
+		return
+	}
+
+	if time.Now().Sub(ratingAlert.LastTriggeredAt).Minutes() > float64(ratingAlert.PeriodMinutes) {
+		return
+	}
+
+	_, _ = rh.ratingAlertTriggerService.Trigger(ratingAlert)
 }
 
 func (rh *ReviewHandler) GetById(w http.ResponseWriter, req *http.Request) {
