@@ -24,4 +24,5 @@ func AutoMigrateAll() {
 	db.AutoMigrate(&rrs.User{})
 	db.AutoMigrate(&rrs.Entity{})
 	db.AutoMigrate(&rrs.Review{})
+	db.AutoMigrate(&rrs.RatingAlert{})
 }

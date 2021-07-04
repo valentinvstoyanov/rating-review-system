@@ -25,7 +25,10 @@ func main() {
 	reviewService := sql.NewReviewService(sql.GetDB(), userService, entityService)
 	reviewHandler := handlers.NewReviewHandler(reviewService)
 
-	registerApiRoutes(r.PathPrefix("/api").Subrouter(), userHandler, entityHandler, reviewHandler)
+	ratingAlertService := sql.NewRatingAlertService(sql.GetDB(), entityService)
+	ratingAlertHandler := handlers.NewRatingAlertHandler(ratingAlertService)
+
+	registerApiRoutes(r.PathPrefix("/api").Subrouter(), userHandler, entityHandler, reviewHandler, ratingAlertHandler)
 
 	http.Handle("/", r)
 
@@ -34,12 +37,13 @@ func main() {
 	log.Fatal(http.ListenAndServe(formattedPort, r))
 }
 
-func registerApiRoutes(r *mux.Router, userHandler *handlers.UserHandler, entityHandler *handlers.EntityHandler, reviewHandler *handlers.ReviewHandler) {
+func registerApiRoutes(r *mux.Router, userHandler *handlers.UserHandler, entityHandler *handlers.EntityHandler, reviewHandler *handlers.ReviewHandler, ratingAlertHandler *handlers.RatingAlertHandler) {
 	r.HandleFunc("/users/{id:[0-9]+}/reviews", reviewHandler.GetByCreatorId).Methods(http.MethodGet)
 	r.HandleFunc("/users/{id:[0-9]+}", userHandler.GetById).Methods(http.MethodGet)
 	r.HandleFunc("/users", userHandler.Create).Methods(http.MethodPost).Headers("Content-Type", "application/json")
 	r.HandleFunc("/users", userHandler.GetAll).Methods(http.MethodGet)
 
+	r.HandleFunc("/entities/{id:[0-9]+}/rating-alerts", ratingAlertHandler.Create).Methods(http.MethodPost).Headers("Content-Type", "application/json")
 	r.HandleFunc("/entities/{id:[0-9]+}/reviews", reviewHandler.GetByEntityId).Methods(http.MethodGet)
 	r.HandleFunc("/entities/{id:[0-9]+}", entityHandler.GetById).Methods(http.MethodGet)
 	r.HandleFunc("/entities", entityHandler.Create).Methods(http.MethodPost).Headers("Content-Type", "application/json")
@@ -48,4 +52,9 @@ func registerApiRoutes(r *mux.Router, userHandler *handlers.UserHandler, entityH
 	r.HandleFunc("/reviews/{id:[0-9]+}", reviewHandler.GetById).Methods(http.MethodGet)
 	r.HandleFunc("/reviews", reviewHandler.Create).Methods(http.MethodPost).Headers("Content-Type", "application/json")
 	r.HandleFunc("/reviews", reviewHandler.GetAll).Methods(http.MethodGet)
+
+	r.HandleFunc("/rating-alerts", ratingAlertHandler.GetByEntityId).Queries("entityId", "{entityId:[0-9]+}").Methods(http.MethodGet)
+	r.HandleFunc("/rating-alerts/{id:[0-9]+}", ratingAlertHandler.UpdateById).Methods(http.MethodPut).Headers("Content-Type", "application/json")
+	r.HandleFunc("/rating-alerts/{id:[0-9]+}", ratingAlertHandler.DeleteById).Methods(http.MethodDelete)
+	r.HandleFunc("/rating-alerts/{id:[0-9]+}", ratingAlertHandler.GetById).Methods(http.MethodGet)
 }

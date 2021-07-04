@@ -41,6 +41,8 @@ func (rs *PersistentReviewService) Create(review *rrs.Review) (*rrs.Review, erro
 		return nil, errors.New("failed to rate the entity: " + err.Error())
 	}
 
+	//TODO: Notify entity.CreatorId that there is new review
+
 	return review, nil
 }
 

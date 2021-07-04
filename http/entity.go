@@ -56,7 +56,7 @@ func (eh *EntityHandler) Create(w http.ResponseWriter, req *http.Request) {
 func (eh *EntityHandler) GetById(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-type", "application/json")
 
-	id, ok := extractParamId("id", w, req)
+	id, ok := extractUintPathVar("id", w, req)
 	if !ok {
 		return
 	}

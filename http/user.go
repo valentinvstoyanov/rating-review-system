@@ -58,7 +58,7 @@ func (uh *UserHandler) Create(w http.ResponseWriter, req *http.Request) {
 func (uh *UserHandler) GetById(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-type", "application/json")
 
-	id, ok := extractParamId("id", w, req)
+	id, ok := extractUintPathVar("id", w, req)
 	if !ok {
 		return
 	}

@@ -60,7 +60,7 @@ func (rh *ReviewHandler) Create(w http.ResponseWriter, req *http.Request) {
 func (rh *ReviewHandler) GetById(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-type", "application/json")
 
-	id, ok := extractParamId("id", w, req)
+	id, ok := extractUintPathVar("id", w, req)
 	if !ok {
 		return
 	}
@@ -87,7 +87,7 @@ func (rh *ReviewHandler) GetAll(w http.ResponseWriter, _ *http.Request) {
 func (rh *ReviewHandler) GetByEntityId(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-type", "application/json")
 
-	entityId, ok := extractParamId("id", w, req)
+	entityId, ok := extractUintPathVar("id", w, req)
 	if !ok {
 		return
 	}
@@ -101,7 +101,7 @@ func (rh *ReviewHandler) GetByEntityId(w http.ResponseWriter, req *http.Request)
 func (rh *ReviewHandler) GetByCreatorId(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-type", "application/json")
 
-	creatorId, ok := extractParamId("id", w, req)
+	creatorId, ok := extractUintPathVar("id", w, req)
 	if !ok {
 		return
 	}

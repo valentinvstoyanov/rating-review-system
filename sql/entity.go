@@ -48,7 +48,7 @@ func (es *PersistentEntityService) UpdateRating(id uint, avgRating float32, revi
 	}
 
 	if res.RowsAffected != 1 {
-		return 0, errors.New("failed to update the rate")
+		return 0, errors.New("failed to update entity's rating")
 	}
 
 	return avgRating, nil
