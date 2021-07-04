@@ -16,4 +16,6 @@ type ReviewService interface {
 	Create(review *Review) (*Review, error)
 	GetById(id uint) (*Review, error)
 	GetAll() []Review
+	GetByEntityId(entityId uint) []Review
+	GetByCreatorId(creatorId uint) []Review
 }

@@ -41,7 +41,7 @@ func (es *PersistentEntityService) GetAll() []rrs.Entity {
 }
 
 func (es *PersistentEntityService) UpdateRating(id uint, avgRating float32, reviewsCount uint) (float32, error) {
-	res := db.Model(&rrs.Entity{}).Where("id = ?", id).UpdateColumns(rrs.Entity{AvgRating: avgRating, ReviewsCount: reviewsCount})
+	res := db.Model(&rrs.Entity{}).Where("id = ?", id).UpdateColumns(&rrs.Entity{AvgRating: avgRating, ReviewsCount: reviewsCount})
 
 	if err := res.Error; err != nil {
 		return 0, err

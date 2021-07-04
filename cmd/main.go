@@ -35,10 +35,12 @@ func main() {
 }
 
 func registerApiRoutes(r *mux.Router, userHandler *handlers.UserHandler, entityHandler *handlers.EntityHandler, reviewHandler *handlers.ReviewHandler) {
+	r.HandleFunc("/users/{id:[0-9]+}/reviews", reviewHandler.GetByCreatorId).Methods(http.MethodGet)
 	r.HandleFunc("/users/{id:[0-9]+}", userHandler.GetById).Methods(http.MethodGet)
 	r.HandleFunc("/users", userHandler.Create).Methods(http.MethodPost).Headers("Content-Type", "application/json")
 	r.HandleFunc("/users", userHandler.GetAll).Methods(http.MethodGet)
 
+	r.HandleFunc("/entities/{id:[0-9]+}/reviews", reviewHandler.GetByEntityId).Methods(http.MethodGet)
 	r.HandleFunc("/entities/{id:[0-9]+}", entityHandler.GetById).Methods(http.MethodGet)
 	r.HandleFunc("/entities", entityHandler.Create).Methods(http.MethodPost).Headers("Content-Type", "application/json")
 	r.HandleFunc("/entities", entityHandler.GetAll).Methods(http.MethodGet)

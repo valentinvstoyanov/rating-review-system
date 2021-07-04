@@ -57,3 +57,15 @@ func (rs *PersistentReviewService) GetAll() []rrs.Review {
 	rs.db.Find(&reviews)
 	return reviews
 }
+
+func (rs *PersistentReviewService) GetByEntityId(entityId uint) []rrs.Review {
+	var reviews []rrs.Review
+	rs.db.Where(&rrs.Review{EntityId: entityId}).Find(&reviews)
+	return reviews
+}
+
+func (rs *PersistentReviewService) GetByCreatorId(creatorId uint) []rrs.Review {
+	var reviews []rrs.Review
+	rs.db.Where(&rrs.Review{CreatorId: creatorId}).Find(&reviews)
+	return reviews
+}

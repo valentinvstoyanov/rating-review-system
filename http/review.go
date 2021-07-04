@@ -41,9 +41,9 @@ func (rh *ReviewHandler) Create(w http.ResponseWriter, req *http.Request) {
 	}
 
 	review, err := rh.reviewService.Create(&rrs.Review{
-		Rating: createReq.Rating,
-		Content: createReq.Content,
-		EntityId:      createReq.EntityId,
+		Rating:    createReq.Rating,
+		Content:   createReq.Content,
+		EntityId:  createReq.EntityId,
 		CreatorId: createReq.CreatorId,
 	})
 
@@ -79,6 +79,34 @@ func (rh *ReviewHandler) GetAll(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Add("Content-type", "application/json")
 
 	reviews := rh.reviewService.GetAll()
+
+	jsonEncoder := json.NewEncoder(w)
+	_ = jsonEncoder.Encode(reviews)
+}
+
+func (rh *ReviewHandler) GetByEntityId(w http.ResponseWriter, req *http.Request) {
+	w.Header().Add("Content-type", "application/json")
+
+	entityId, ok := extractParamId("id", w, req)
+	if !ok {
+		return
+	}
+
+	reviews := rh.reviewService.GetByEntityId(entityId)
+
+	jsonEncoder := json.NewEncoder(w)
+	_ = jsonEncoder.Encode(reviews)
+}
+
+func (rh *ReviewHandler) GetByCreatorId(w http.ResponseWriter, req *http.Request) {
+	w.Header().Add("Content-type", "application/json")
+
+	creatorId, ok := extractParamId("id", w, req)
+	if !ok {
+		return
+	}
+
+	reviews := rh.reviewService.GetByCreatorId(creatorId)
 
 	jsonEncoder := json.NewEncoder(w)
 	_ = jsonEncoder.Encode(reviews)
