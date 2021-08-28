@@ -2,8 +2,9 @@ package sql
 
 import (
 	"errors"
-	"fmt"
 	rrs "github.com/valentinvstoyanov/rating-review-system"
+	"log"
+	"math"
 	"time"
 )
 
@@ -33,6 +34,8 @@ func (s *PersistentRatingAlertTriggerService) Trigger(ratingAlert *rrs.RatingAle
 	reviews := s.reviewService.GetByEntityIdInPeriod(entity.Id, startTime, endTime)
 	reviewsCount := len(reviews)
 
+	log.Printf("Checking for rating alarm with reviews: %#v\n", reviews)
+
 	if reviewsCount == 0 {
 		return ratingAlert, nil
 	}
@@ -42,7 +45,7 @@ func (s *PersistentRatingAlertTriggerService) Trigger(ratingAlert *rrs.RatingAle
 
 	if percentageChange >= ratingAlert.PercentageChange {
 		//TODO: Send alarm to Slack
-		fmt.Printf("Rating alarm for entity '%s' with id %d: percentage change is %f over %s period\n", entity.Name, entity.Id, percentageChange, period)
+		log.Printf("Rating alarm for entity '%s' with id %d: percentage change is %f over %s period\n", entity.Name, entity.Id, percentageChange, period)
 	}
 
 	return ratingAlert, nil
@@ -50,5 +53,5 @@ func (s *PersistentRatingAlertTriggerService) Trigger(ratingAlert *rrs.RatingAle
 
 func calculateRatingPercentageChange(firstReview *rrs.Review, lastReview *rrs.Review) float32 {
 	ratingDiff := lastReview.Rating - firstReview.Rating
-	return (ratingDiff / firstReview.Rating) * 100
+	return float32(math.Abs(float64(ratingDiff/firstReview.Rating)) * 100)
 }

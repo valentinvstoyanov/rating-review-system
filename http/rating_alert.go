@@ -26,7 +26,7 @@ func (rah *RatingAlertHandler) Create(w http.ResponseWriter, req *http.Request) 
 
 	type CreateReq struct {
 		PercentageChange float32 `validate:"gt=0,lte=100" json:"percentageChange"`
-		PeriodMinutes    uint    `validate:"gt=1,lte=1000000" json:"periodMinutes"`
+		PeriodMinutes    uint    `validate:"gt=0,lte=1000000" json:"periodMinutes"`
 	}
 
 	var createReq CreateReq

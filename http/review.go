@@ -64,7 +64,7 @@ func (rh *ReviewHandler) Create(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if time.Now().Sub(ratingAlert.LastTriggeredAt).Minutes() > float64(ratingAlert.PeriodMinutes) {
+	if !ratingAlert.LastTriggeredAt.IsZero() && time.Now().Sub(ratingAlert.LastTriggeredAt).Minutes() > float64(ratingAlert.PeriodMinutes) {
 		return
 	}
 

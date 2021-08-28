@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/jinzhu/gorm"
 	rrs "github.com/valentinvstoyanov/rating-review-system"
+	"log"
 	"time"
 )
 
@@ -43,6 +44,7 @@ func (rs *PersistentReviewService) Create(review *rrs.Review) (*rrs.Review, erro
 	}
 
 	//TODO: Notify entity.CreatorId that there is a new review
+	log.Printf("New review from %d for entity with id=%d, name=%s and creatorId=%d", review.CreatorId, entity.Id, entity.Name, entity.CreatorId)
 
 	return review, nil
 }
