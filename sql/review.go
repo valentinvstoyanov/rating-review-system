@@ -2,8 +2,11 @@ package sql
 
 import (
 	"errors"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	rrs "github.com/valentinvstoyanov/rating-review-system"
+	"github.com/valentinvstoyanov/rating-review-system/email"
+	"github.com/valentinvstoyanov/rating-review-system/env"
 	"log"
 	"time"
 )
@@ -19,7 +22,8 @@ func NewReviewService(db *gorm.DB, userService rrs.UserService, entityService rr
 }
 
 func (rs *PersistentReviewService) Create(review *rrs.Review) (*rrs.Review, error) {
-	if _, err := rs.userService.GetById(review.CreatorId); err != nil {
+	reviewer, err := rs.userService.GetById(review.CreatorId)
+	if err != nil {
 		return nil, errors.New("failed to find creator with such id: " + err.Error())
 	}
 
@@ -30,6 +34,11 @@ func (rs *PersistentReviewService) Create(review *rrs.Review) (*rrs.Review, erro
 
 	if entity.CreatorId == review.CreatorId {
 		return nil, errors.New("cannot rate your own entity")
+	}
+
+	entityCreator, err := rs.userService.GetById(entity.CreatorId)
+	if err != nil {
+		return nil, errors.New("failed to find creator with such id: " + err.Error())
 	}
 
 	if err := rs.db.Create(&review).Error; err != nil {
@@ -43,8 +52,18 @@ func (rs *PersistentReviewService) Create(review *rrs.Review) (*rrs.Review, erro
 		return nil, errors.New("failed to rate the entity: " + err.Error())
 	}
 
-	//TODO: Notify entity.CreatorId that there is a new review
-	log.Printf("New review from %d for entity with id=%d, name=%s and creatorId=%d", review.CreatorId, entity.Id, entity.Name, entity.CreatorId)
+	message := email.Message{
+		Sender:   env.GetEnvVar("EMAIL_SENDER"),
+		Receiver: entityCreator.Email,
+		Subject:  "New entity review",
+		Content:  fmt.Sprintf("%s just got reviewed by %s with %.2f stars.\n\n\nEnjoy!\n", entity.Name, reviewer.FirstName+" "+reviewer.LastName, review.Rating),
+	}
+
+	if err := email.Send(message, env.GetEnvVar("EMAIL_PASS")); err != nil {
+		log.Printf("Failed to notify the creator %d of entity %d for the new review %d\n", entity.CreatorId, entity.Id, review.Id)
+	} else {
+		log.Printf("New review from %d for entity with id=%d, name=%s and creatorId=%d", review.CreatorId, entity.Id, entity.Name, entity.CreatorId)
+	}
 
 	return review, nil
 }
