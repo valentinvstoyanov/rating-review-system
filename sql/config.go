@@ -2,6 +2,7 @@ package sql
 
 import (
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	rrs "github.com/valentinvstoyanov/rating-review-system"
 	"github.com/valentinvstoyanov/rating-review-system/env"
