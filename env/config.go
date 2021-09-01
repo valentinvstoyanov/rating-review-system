@@ -23,7 +23,12 @@ func GetEnvVar(name string) string {
 		log.Fatalf("Failed to load %s.env file: %s", env, err)
 	}
 
-	return os.Getenv(name)
+	res, ok := os.LookupEnv(name)
+	if !ok {
+		missingEnvVar(name)
+	}
+
+	return res
 }
 
 func IsProd() bool {
@@ -41,7 +46,11 @@ func matchEnv(env string) bool {
 func getEnv() string {
 	env := os.Getenv(envVarName)
 	if len(env) == 0 {
-		panic(fmt.Sprintf("Missing %s environment variable", envVarName))
+		missingEnvVar(envVarName)
 	}
 	return env
+}
+
+func missingEnvVar(name string) {
+	panic(fmt.Sprintf("Missing %s environment variable", name))
 }
