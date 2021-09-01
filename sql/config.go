@@ -33,11 +33,12 @@ func CreateDatabaseConnection() {
 		port := env.GetEnvVar(dbPortVar)
 		connection := user + ":" + pass + "@(" + host + ":" + port + ")/" + name + "?charset=utf8&parseTime=True&loc=Local"
 
-		log.Printf("db connection: %s", connection)
-
 		db, err = gorm.Open(driver, connection)
+		log.Printf("%s db setup: %s\n", driver, connection)
 	} else {
-		db, err = gorm.Open(driver, env.GetEnvVar(dbFileNameVar))
+		fileName := env.GetEnvVar(dbFileNameVar)
+		db, err = gorm.Open(driver, fileName)
+		log.Printf("%s db setup: %s\n", driver, fileName)
 	}
 
 	if err != nil {
