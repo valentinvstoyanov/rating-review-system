@@ -9,14 +9,14 @@ import (
 
 const (
 	envVarName = "ENV"
-	envDirPath = "./"
+	envDirPath = "./env/"
 	envFileExt = ".env"
 	prodEnv    = "prod"
 	devEnv     = "dev"
 )
 
 func GetEnvVar(name string) string {
-	env := os.Getenv(envVarName)
+	env := getEnv()
 	envFileName := fmt.Sprintf("%s%s%s", envDirPath, env, envFileExt)
 
 	if err := godotenv.Load(envFileName); err != nil {
@@ -35,5 +35,13 @@ func IsDev() bool {
 }
 
 func matchEnv(env string) bool {
-	return os.Getenv(envVarName) == env
+	return getEnv() == env
+}
+
+func getEnv() string {
+	env := os.Getenv(envVarName)
+	if len(env) == 0 {
+		panic(fmt.Sprintf("Missing %s environment variable", envVarName))
+	}
+	return env
 }
