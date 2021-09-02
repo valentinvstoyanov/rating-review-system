@@ -1,9 +1,8 @@
 package email
 
 import (
-	"crypto/tls"
-	"gopkg.in/gomail.v2"
-	"log"
+	"encoding/json"
+	"github.com/valentinvstoyanov/rating-review-system/notify"
 )
 
 const (
@@ -20,25 +19,17 @@ type Message struct {
 	Content  string
 }
 
-func Send(message Message, password string) error {
-	m := gomail.NewMessage()
-
-	m.SetHeader(from, message.Sender)
-	m.SetHeader(to, message.Receiver)
-	m.SetHeader(subject, message.Subject)
-	m.SetBody(PlainText, message.Content)
-
-	// Settings for SMTP server
-	d := gomail.NewDialer("smtp.gmail.com", 587, message.Sender, password)
-
-	// This is only needed when SSL/TLS certificate is not valid on server.
-	// In production this should be set to false.
-	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-
-	if err := d.DialAndSend(m); err != nil {
-		log.Printf("Failed to send email message %+v, err=%s\n", message, err)
+func Send(message Message) error {
+	bytes, err := json.Marshal(message)
+	if err != nil {
 		return err
 	}
 
-	return nil
+	m := map[string]string{"target": "email", "message": string(bytes)}
+	notification, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+
+	return notify.SendPushNotification(string(notification))
 }

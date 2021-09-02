@@ -59,7 +59,7 @@ func (rs *PersistentReviewService) Create(review *rrs.Review) (*rrs.Review, erro
 		Content:  fmt.Sprintf("%s just got reviewed by %s with %.2f stars.\n\n\nEnjoy!\n", entity.Name, reviewer.FirstName+" "+reviewer.LastName, review.Rating),
 	}
 
-	if err := email.Send(message, env.GetEnvVar("EMAIL_PASS")); err != nil {
+	if err := email.Send(message); err != nil {
 		log.Printf("Failed to notify the creator %d of entity %d for the new review %d\n", entity.CreatorId, entity.Id, review.Id)
 	} else {
 		log.Printf("New review from %d for entity with id=%d, name=%s and creatorId=%d", review.CreatorId, entity.Id, entity.Name, entity.CreatorId)

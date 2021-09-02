@@ -2,7 +2,9 @@ package sql
 
 import (
 	"errors"
+	"fmt"
 	rrs "github.com/valentinvstoyanov/rating-review-system"
+	"github.com/valentinvstoyanov/rating-review-system/slack"
 	"log"
 	"math"
 	"time"
@@ -44,8 +46,12 @@ func (s *PersistentRatingAlertTriggerService) Trigger(ratingAlert *rrs.RatingAle
 	percentageChange, period := calculateRatingPercentageChange(&firstReview, &lastReview), lastReview.CreatedAt.Sub(firstReview.CreatedAt)
 
 	if percentageChange >= ratingAlert.PercentageChange {
-		//TODO: Send alarm to Slack
-		log.Printf("Rating alarm for entity '%s' with id %d: percentage change is %f over %s period\n", entity.Name, entity.Id, percentageChange, period)
+		message := fmt.Sprintf("Rating alarm for entity '%s' with id %d: percentage change is %f over %s period\n", entity.Name, entity.Id, percentageChange, period)
+		if err := slack.Send(message); err != nil {
+			log.Printf("Failed to send Slack notification, message=%s, err=%s\n", message, err)
+		} else {
+			log.Printf("Sent Slack notification: %s", message)
+		}
 	}
 
 	return ratingAlert, nil
