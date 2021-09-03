@@ -7,14 +7,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 	"gopkg.in/gomail.v2"
 	"log"
 	"net/http"
+	"os"
 )
 
 const (
-	slackMessageKey = "text"
-	slackUrl        = "https://hooks.slack.com/services/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"
+	slackMessageKey     = "text"
+	slackWebhookVarName = "SLACK_WEBHOOK"
+	emailPassVarName    = "EMAIL_PASS"
 )
 
 type NotificationEvent struct {
@@ -23,13 +26,15 @@ type NotificationEvent struct {
 }
 
 func Handler(snsEvent events.SNSEvent) error {
+	log.Printf("SNS event: %+v\n", snsEvent)
 	var resErr error
 
 	for _, record := range snsEvent.Records {
+		snsMessage := record.SNS.Message
 		event := NotificationEvent{}
 
-		if err := json.Unmarshal([]byte(record.SNS.Message), &event); err != nil {
-			log.Printf("Failed to unmarshal sns message %s, err=%s\n", record.SNS.Message, err)
+		if err := json.Unmarshal([]byte(snsMessage), &event); err != nil {
+			log.Printf("Failed to unmarshal sns message %s, err=%s\n", snsMessage, err)
 			resErr = err
 		}
 
@@ -51,7 +56,7 @@ func Handler(snsEvent events.SNSEvent) error {
 			}
 
 			emailMessage.Sender = "education.purposes.test.1914@gmail.com"
-			if err := SendEmail(emailMessage, "edpurptest1914"); err != nil {
+			if err := SendEmail(emailMessage, os.Getenv(emailPassVarName)); err != nil {
 				log.Printf("Failed to send email message, err=%s\n", event.Message)
 				resErr = err
 			}
@@ -73,7 +78,7 @@ func sendToSlack(message string) error {
 		return err
 	}
 
-	_, err = http.Post(slackUrl, "application/json", bytes.NewBuffer(body))
+	_, err = http.Post(os.Getenv(slackWebhookVarName), "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		return err
 	}
@@ -149,43 +154,13 @@ func (b *NotificationEvent) UnmarshalJSON(data []byte) error {
 		}
 
 		b.Message = string(jsonBytes)
+
 		return nil
-		//message, ok := m["message"].(map[string]string)
-		//if !ok {
-		//	return errors.New("Unexpected message type, expected map[string]string")
-		//}
-		//
-		//email := Message{
-		//	Sender:   message["sender"],
-		//	Receiver: message["receiver"],
-		//	Subject:  message["subject"],
-		//	Content:  message["content"],
-		//}
-		//
-		//b.
 	}
 
 	return errors.New(fmt.Sprintf("Unexpected target %s, expected slack or email"))
 }
 
-//func main() {
-//	lambda.Start(Handler)
-	//m := "{\"target\": \"email\",\"message\": {\"sender\": \"education.purposes.test.1914@gmail.com\",\"receiver\":\"valentinstoqnov98@gmail.com\",\"subject\": \"zdr\",\"content\": \"test from lambda\"}}"
-	//
-	//event := NotificationEvent{}
-	//err := json.Unmarshal([]byte(m), &event)
-	//
-	//emailMessage := Message{}
-	//err1 := json.Unmarshal([]byte(event.Message), &emailMessage)
-	//
-	//fmt.Println(err)
-	//fmt.Println(err1)
-	//fmt.Println(event)
-	//fmt.Println(emailMessage)
-	//
-	//mp := map[string]map[string]string{}
-	//err2 := json.Unmarshal([]byte(m), &mp)
-	//
-	//fmt.Println(mp)
-	//fmt.Println(err2)
-//}
+func main() {
+	lambda.Start(Handler)
+}

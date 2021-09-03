@@ -2,14 +2,8 @@ package email
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/valentinvstoyanov/rating-review-system/notify"
-)
-
-const (
-	from      = "From"
-	to        = "To"
-	subject   = "Subject"
-	PlainText = "text/plain"
 )
 
 type Message struct {
@@ -25,11 +19,6 @@ func Send(message Message) error {
 		return err
 	}
 
-	m := map[string]string{"target": "email", "message": string(bytes)}
-	notification, err := json.Marshal(m)
-	if err != nil {
-		return err
-	}
-
-	return notify.SendPushNotification(string(notification))
+	notification := fmt.Sprintf("{\"target\": \"%s\", \"message\": %s}", "email", bytes)
+	return notify.SendPushNotification(notification)
 }
